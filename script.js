@@ -64,3 +64,24 @@ const currencies = new Map([
 ]);
 
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+
+// Function to display all movements associated to current account
+const displayMovements = function (movements) {
+    containerMovements.innerHTML = '';
+
+    movements.forEach((movement, index) => {
+        const movementType = movement > 0 ? 'deposit' : 'withdrawal';
+
+        const movementsRowHTML = `
+        <div class="movements__row">
+            <div class="movements__type movements__type--${movementType}">(${index + 1}) ${movementType}</div>
+            <div class="movements__value">${movement}</div>
+        </div>`;
+
+        // The insertAdjacentHTML() method parses the specified text as HTML or XML and inserts the resulting nodes at specified node in DOM Tree
+        // 'afterbegin' is used to add latest transactions on the top of the container
+        containerMovements.insertAdjacentHTML('afterbegin', movementsRowHTML);
+    });
+};
+
+displayMovements(movements);
