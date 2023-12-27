@@ -170,6 +170,22 @@ btnTransfer.addEventListener('click', function (e) {
     inputTransferAmount.value = inputTransferTo.value = '';
 });
 
+//-> Requesting loan Event Handler
+btnLoan.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    const amount = Number(inputLoanAmount.value);
+
+    // Loan is only approved if there is atleast one deposit of minimum 10% of requested amount
+    if (amount > 0 && currentAccount.movements.some((mov) => mov >= 0.1 * amount)) {
+        currentAccount.movements.push(amount);
+        updateUI(currentAccount);
+    }
+
+    inputLoanAmount.value = '';
+    inputLoanAmount.blur();
+});
+
 //-> Terminate account Event Handler
 btnClose.addEventListener('click', function (e) {
     e.preventDefault();
