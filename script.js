@@ -1,6 +1,6 @@
 'use strict';
 
-// Dummy accounts
+// Assume that account objects are coming from some API
 const account1 = {
     owner: 'Jonas Schmedtmann',
     movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
@@ -84,4 +84,16 @@ const displayMovements = function (movements) {
     });
 };
 
+// Functions that computes usernames by joining lowercase initials of the owner's names
+const computeUserNames = function (accs) {
+    for (const acc of accs) {
+        acc.username = acc.owner
+            .toLowerCase()
+            .split(' ')
+            .map((name) => name[0])
+            .join('');
+    }
+};
+
 displayMovements(movements);
+computeUserNames(accounts);
