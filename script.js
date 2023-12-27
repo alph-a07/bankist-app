@@ -65,16 +65,18 @@ const currencies = new Map([
 ]);
 
 //-> Function to display all movements associated to current account
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sort = false) {
     containerMovements.innerHTML = '';
 
-    movements.forEach((movement, index) => {
+    const transactions = sort ? movements.slice().sort((a, b) => a - b) : movements;
+
+    transactions.forEach((movement, index) => {
         const movementType = movement > 0 ? 'deposit' : 'withdrawal';
 
         const movementsRowHTML = `
         <div class="movements__row">
             <div class="movements__type movements__type--${movementType}">(${index + 1}) ${movementType}</div>
-            <div class="movements__value">${movement}</div>
+            <div class="movements__value">${movement} €</div>
         </div>`;
 
         // The insertAdjacentHTML() method parses the specified text as HTML or XML and inserts the resulting nodes at specified node in DOM Tree
@@ -198,4 +200,11 @@ btnClose.addEventListener('click', function (e) {
     }
 
     inputCloseUsername.value = inputClosePin.value = '';
+});
+
+let sorted = false;
+//-> Sorting movements Even Handler
+btnSort.addEventListener('click', function () {
+    displayMovements(currentAccount.movements, !sorted); // sort if not sorted and vice versa
+    sorted = !sorted; // flip the sorted variable
 });
