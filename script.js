@@ -96,9 +96,9 @@ const computeUserNames = function (accs) {
 computeUserNames(accounts);
 
 //-> Function to display total account balance
-const displayBalance = function (movements) {
-    const balance = movements.reduce((accum, mov) => (accum += mov), 0);
-    labelBalance.textContent = `${balance} EUR`;
+const displayBalance = function (account) {
+    account.balance = account.movements.reduce((accum, mov) => (accum += mov), 0);
+    labelBalance.textContent = `${account.balance}€`;
 };
 
 //-> Function to diplay summary of deposits, withdrawal and added interest
@@ -121,6 +121,13 @@ const displaySummary = function (account) {
     labelSumInterest.textContent = `${interest}€`;
 };
 
+//-> Function to update UI
+const updateUI = function (currentAccount) {
+    displayMovements(currentAccount.movements);
+    displayBalance(currentAccount);
+    displaySummary(currentAccount);
+};
+
 //-> Login Event Handler
 btnLogin.addEventListener('click', function (e) {
     // Prevents the form from submitting and the page from reloading
@@ -140,8 +147,39 @@ btnLogin.addEventListener('click', function (e) {
         inputLoginUsername.blur();
         inputLoginPin.blur();
 
-        displayMovements(currentAccount.movements);
-        displayBalance(currentAccount.movements);
-        displaySummary(currentAccount);
+        updateUI(currentAccount);
     }
+});
+
+//-> Transfer money Event Handler
+btnTransfer.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    const amount = Number(inputTransferAmount.value);
+    const receiverAcc = accounts.find((acc) => acc.username === inputTransferTo.value);
+
+    if (amount > 0 && receiverAcc && currentAccount.balance >= amount && receiverAcc?.username !== currentAccount.username) {
+        currentAccount.movements.push(-1 * amount);
+        receiverAcc?.movements.push(amount);
+        updateUI(currentAccount);
+
+        inputTransferAmount.blur();
+        inputTransferTo.blur();
+    }
+
+    inputTransferAmount.value = inputTransferTo.value = '';
+});
+
+//-> Terminate account Event Handler
+btnClose.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    if (inputCloseUsername.value === currentAccount.username && Number(inputClosePin.value) == currentAccount.pin) {
+        const index = accounts.findIndex((acc) => acc.username === currentAccount.username);
+
+        containerApp.style.opacity = 0;
+        accounts.splice(index, 1);
+    }
+
+    inputCloseUsername.value = inputClosePin.value = '';
 });
