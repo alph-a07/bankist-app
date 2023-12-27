@@ -95,5 +95,12 @@ const computeUserNames = function (accs) {
     }
 };
 
+const displayBalance = function (movements) {
+    const balance = movements.reduce((accum, mov) => (accum += mov), 0);
+    console.log(balance);
+    labelBalance.textContent = `${balance} EUR`;
+};
+
 displayMovements(movements);
 computeUserNames(accounts);
+displayBalance(movements);
