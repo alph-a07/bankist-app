@@ -94,16 +94,18 @@ const computeUserNames = function (accs) {
             .join('');
     }
 };
+computeUserNames(accounts);
 
 // Function to display total account balance
 const displayBalance = function (movements) {
     const balance = movements.reduce((accum, mov) => (accum += mov), 0);
-    console.log(balance);
     labelBalance.textContent = `${balance} EUR`;
 };
 
 // Function to diplay summary of deposits, withdrawal and added interest
-const displaySummary = function (movements) {
+const displaySummary = function (account) {
+    const movements = account.movements;
+
     const incomes = movements.filter((mov) => mov > 0).reduce((accum, mov) => accum + mov, 0);
 
     const out = Math.abs(movements.filter((mov) => mov < 0).reduce((accum, mov) => accum + mov, 0));
@@ -111,7 +113,7 @@ const displaySummary = function (movements) {
     // Compute interest on all deposits and ignore interests below value 1
     const interest = movements
         .filter((mov) => mov > 0)
-        .map((deposit) => (deposit * 1.2) / 100)
+        .map((deposit) => (deposit * account.interestRate) / 100)
         .filter((interest) => interest >= 1)
         .reduce((interest, deposit) => (interest += deposit), 0);
 
@@ -120,7 +122,29 @@ const displaySummary = function (movements) {
     labelSumInterest.textContent = `${interest}€`;
 };
 
-displayMovements(movements);
-computeUserNames(accounts);
-displayBalance(movements);
-displaySummary(movements);
+let currentAccount;
+
+// Login Event Handler
+btnLogin.addEventListener('click', function (e) {
+    // Prevents the form from submitting and the page from reloading
+    e.preventDefault();
+
+    // Find the user with entered username
+    currentAccount = accounts.find((acc) => acc.username === inputLoginUsername.value);
+
+    // Match the entered pin with the correct pin
+    if (currentAccount?.pin === Number(inputLoginPin.value)) {
+        // Greeting message with first name
+        labelWelcome.textContent = `Welcome back, ${currentAccount.owner.split(' ')[0]}`;
+
+        containerApp.style.opacity = 100;
+        inputLoginUsername.value = inputLoginPin.value = '';
+        // The blur() method removes focus from the current element
+        inputLoginUsername.blur();
+        inputLoginPin.blur();
+
+        displayMovements(currentAccount.movements);
+        displayBalance(currentAccount.movements);
+        displaySummary(currentAccount);
+    }
+});
