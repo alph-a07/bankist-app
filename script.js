@@ -30,6 +30,7 @@ const account4 = {
 };
 
 const accounts = [account1, account2, account3, account4];
+let currentAccount;
 
 // Elements
 const labelWelcome = document.querySelector('.welcome');
@@ -63,9 +64,7 @@ const currencies = new Map([
     ['GBP', 'Pound sterling'],
 ]);
 
-const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
-
-// Function to display all movements associated to current account
+//-> Function to display all movements associated to current account
 const displayMovements = function (movements) {
     containerMovements.innerHTML = '';
 
@@ -84,7 +83,7 @@ const displayMovements = function (movements) {
     });
 };
 
-// Functions that computes usernames by joining lowercase initials of the owner's names
+//-> Functions that computes usernames by joining lowercase initials of the owner's names
 const computeUserNames = function (accs) {
     for (const acc of accs) {
         acc.username = acc.owner
@@ -96,13 +95,13 @@ const computeUserNames = function (accs) {
 };
 computeUserNames(accounts);
 
-// Function to display total account balance
+//-> Function to display total account balance
 const displayBalance = function (movements) {
     const balance = movements.reduce((accum, mov) => (accum += mov), 0);
     labelBalance.textContent = `${balance} EUR`;
 };
 
-// Function to diplay summary of deposits, withdrawal and added interest
+//-> Function to diplay summary of deposits, withdrawal and added interest
 const displaySummary = function (account) {
     const movements = account.movements;
 
@@ -122,9 +121,7 @@ const displaySummary = function (account) {
     labelSumInterest.textContent = `${interest}€`;
 };
 
-let currentAccount;
-
-// Login Event Handler
+//-> Login Event Handler
 btnLogin.addEventListener('click', function (e) {
     // Prevents the form from submitting and the page from reloading
     e.preventDefault();
