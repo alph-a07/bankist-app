@@ -76,7 +76,7 @@ const displayMovements = function (movements, sort = false) {
         const movementsRowHTML = `
         <div class="movements__row">
             <div class="movements__type movements__type--${movementType}">(${index + 1}) ${movementType}</div>
-            <div class="movements__value">${movement} €</div>
+            <div class="movements__value">${movement.toFixed(2)} €</div>
         </div>`;
 
         // The insertAdjacentHTML() method parses the specified text as HTML or XML and inserts the resulting nodes at specified node in DOM Tree
@@ -100,7 +100,7 @@ computeUserNames(accounts);
 //-> Function to display total account balance
 const displayBalance = function (account) {
     account.balance = account.movements.reduce((accum, mov) => (accum += mov), 0);
-    labelBalance.textContent = `${account.balance}€`;
+    labelBalance.textContent = `${account.balance.toFixed(2)}€`;
 };
 
 //-> Function to diplay summary of deposits, withdrawal and added interest
@@ -118,9 +118,9 @@ const displaySummary = function (account) {
         .filter((interest) => interest >= 1)
         .reduce((interest, deposit) => (interest += deposit), 0);
 
-    labelSumIn.textContent = `${incomes}€`;
-    labelSumOut.textContent = `${out}€`;
-    labelSumInterest.textContent = `${interest}€`;
+    labelSumIn.textContent = `${incomes.toFixed(2)}€`;
+    labelSumOut.textContent = `${out.toFixed(2)}€`;
+    labelSumInterest.textContent = `${interest.toFixed(2)}€`;
 };
 
 //-> Function to update UI
@@ -176,7 +176,7 @@ btnTransfer.addEventListener('click', function (e) {
 btnLoan.addEventListener('click', function (e) {
     e.preventDefault();
 
-    const amount = Number(inputLoanAmount.value);
+    const amount = Math.floor(inputLoanAmount.value);
 
     // Loan is only approved if there is atleast one deposit of minimum 10% of requested amount
     if (amount > 0 && currentAccount.movements.some((mov) => mov >= 0.1 * amount)) {
