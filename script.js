@@ -95,12 +95,32 @@ const computeUserNames = function (accs) {
     }
 };
 
+// Function to display total account balance
 const displayBalance = function (movements) {
     const balance = movements.reduce((accum, mov) => (accum += mov), 0);
     console.log(balance);
     labelBalance.textContent = `${balance} EUR`;
 };
 
+// Function to diplay summary of deposits, withdrawal and added interest
+const displaySummary = function (movements) {
+    const incomes = movements.filter((mov) => mov > 0).reduce((accum, mov) => accum + mov, 0);
+
+    const out = Math.abs(movements.filter((mov) => mov < 0).reduce((accum, mov) => accum + mov, 0));
+
+    // Compute interest on all deposits and ignore interests below value 1
+    const interest = movements
+        .filter((mov) => mov > 0)
+        .map((deposit) => (deposit * 1.2) / 100)
+        .filter((interest) => interest >= 1)
+        .reduce((interest, deposit) => (interest += deposit), 0);
+
+    labelSumIn.textContent = `${incomes}€`;
+    labelSumOut.textContent = `${out}€`;
+    labelSumInterest.textContent = `${interest}€`;
+};
+
 displayMovements(movements);
 computeUserNames(accounts);
 displayBalance(movements);
+displaySummary(movements);
