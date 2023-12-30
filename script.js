@@ -123,8 +123,20 @@ const formatMovementsDates = function (date, locale) {
     if (daysPassed === 0) return 'Today';
     else if (daysPassed === 1) return 'Yesterday';
     else if (daysPassed <= 7) return `${daysPassed} days ago`;
-    
+
     return new Intl.DateTimeFormat(locale).format(date);
+};
+
+// Do note that locale and currency are independent of each other
+// Locale controls the representation of the value
+// Currency controls the representation of the currency
+const formatCurrencies = function (value, locale, currency) {
+    const options = {
+        style: 'currency',
+        currency: currency,
+    };
+
+    return new Intl.NumberFormat(locale, options).format(value);
 };
 
 //-> Function to display all movements associated to current account
@@ -138,13 +150,12 @@ const displayMovements = function (account, sort = false) {
 
         const date = new Date(account.movementsDates[index]);
         const displayDate = formatMovementsDates(date, account.locale);
-        // console.log(displayDate);
 
         const movementsRowHTML = `
         <div class="movements__row">
             <div class="movements__type movements__type--${movementType}">(${index + 1}) ${movementType}</div>
             <div class="movements__date">${displayDate}</div>
-            <div class="movements__value">${movement.toFixed(2)} €</div>
+            <div class="movements__value">${formatCurrencies(movement, account.locale, account.currency)}</div>
         </div>`;
 
         // The insertAdjacentHTML() method parses the specified text as HTML or XML and inserts the resulting nodes at specified node in DOM Tree
@@ -168,7 +179,7 @@ computeUserNames(accounts);
 //-> Function to display total account balance
 const displayBalance = function (account) {
     account.balance = account.movements.reduce((accum, mov) => (accum += mov), 0);
-    labelBalance.textContent = `${account.balance.toFixed(2)}€`;
+    labelBalance.textContent = formatCurrencies(account.balance, account.locale, account.currency);
 };
 
 //-> Function to diplay summary of deposits, withdrawal and added interest
@@ -186,9 +197,9 @@ const displaySummary = function (account) {
         .filter(interest => interest >= 1)
         .reduce((interest, deposit) => (interest += deposit), 0);
 
-    labelSumIn.textContent = `${incomes.toFixed(2)}€`;
-    labelSumOut.textContent = `${out.toFixed(2)}€`;
-    labelSumInterest.textContent = `${interest.toFixed(2)}€`;
+    labelSumIn.textContent = `${formatCurrencies(incomes, account.locale, account.currency)}`;
+    labelSumOut.textContent = `${formatCurrencies(out, account.locale, account.currency)}`;
+    labelSumInterest.textContent = `${formatCurrencies(interest, account.locale, account.currency)}`;
 };
 
 //-> Function to update UI
