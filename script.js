@@ -18,7 +18,7 @@ const account1 = {
         '2020-07-12T10:51:36.790Z',
     ],
     currency: 'EUR',
-    locale: 'pt-PT', // de-DE
+    locale: 'en-UK', // de-DE
 };
 
 const account2 = {
@@ -41,7 +41,47 @@ const account2 = {
     locale: 'en-US',
 };
 
-const accounts = [account1, account2];
+const account3 = {
+    owner: 'Jeel Patel',
+    movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
+    interestRate: 1.9,
+    pin: 3333,
+
+    movementsDates: [
+        '2019-11-01T13:15:33.035Z',
+        '2019-11-30T09:48:16.867Z',
+        '2019-12-25T06:04:23.907Z',
+        '2020-01-25T14:18:46.235Z',
+        '2020-02-05T16:33:06.386Z',
+        '2022-11-25T14:43:26.374Z',
+        '2023-12-29T18:49:59.371Z',
+        '2023-12-30T12:01:20.894Z',
+    ],
+    currency: 'INR',
+    locale: 'gu-IN',
+};
+
+const account4 = {
+    owner: 'Maitry Makwana',
+    movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
+    interestRate: 2.0,
+    pin: 4444,
+
+    movementsDates: [
+        '2019-11-01T13:15:33.035Z',
+        '2019-11-30T09:48:16.867Z',
+        '2019-12-25T06:04:23.907Z',
+        '2020-01-25T14:18:46.235Z',
+        '2020-02-05T16:33:06.386Z',
+        '2021-12-25T14:43:26.374Z',
+        '2022-12-29T18:49:59.371Z',
+        '2023-12-30T12:01:20.894Z',
+    ],
+    currency: 'INR',
+    locale: 'hi-IN',
+};
+
+const accounts = [account1, account2, account3, account4];
 let currentAccount;
 
 // Elements
@@ -76,21 +116,15 @@ const currencies = new Map([
     ['GBP', 'Pound sterling'],
 ]);
 
-const formatMovementsDates = function (date) {
+const formatMovementsDates = function (date, locale) {
     const calcDaysPassed = (date1, date2) => Math.round(Math.abs(date1 - date2) / (1000 * 60 * 60 * 24));
     const daysPassed = calcDaysPassed(new Date(), date);
-    console.log(daysPassed);
 
     if (daysPassed === 0) return 'Today';
     else if (daysPassed === 1) return 'Yesterday';
     else if (daysPassed <= 7) return `${daysPassed} days ago`;
-    else {
-        const day = `${date.getDate()}`.padStart(2, 0);
-        const month = `${date.getMonth() + 1}`.padStart(2, 0);
-        const year = date.getFullYear();
-
-        return `${day}/${month}/${year}`;
-    }
+    
+    return new Intl.DateTimeFormat(locale).format(date);
 };
 
 //-> Function to display all movements associated to current account
@@ -103,7 +137,7 @@ const displayMovements = function (account, sort = false) {
         const movementType = movement > 0 ? 'deposit' : 'withdrawal';
 
         const date = new Date(account.movementsDates[index]);
-        const displayDate = formatMovementsDates(date);
+        const displayDate = formatMovementsDates(date, account.locale);
         // console.log(displayDate);
 
         const movementsRowHTML = `
@@ -189,13 +223,15 @@ btnLogin.addEventListener('click', function (e) {
 
         // Displaying current date
         const currDate = new Date();
-        const day = `${currDate.getDate()}`.padStart(2, 0);
-        const month = `${currDate.getMonth() + 1}`.padStart(2, 0);
-        const year = currDate.getFullYear();
-        const hour = `${currDate.getHours()}`.padStart(2, 0);
-        const minutes = `${currDate.getMinutes()}`.padStart(2, 0);
+        const formattingOptions = {
+            day: 'numeric',
+            month: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+        };
 
-        labelDate.textContent = `${day}/${month}/${year}, ${hour}:${minutes}`;
+        labelDate.textContent = new Intl.DateTimeFormat(currentAccount.locale, formattingOptions).format(currDate);
 
         updateUI(currentAccount);
     }
