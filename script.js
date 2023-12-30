@@ -33,9 +33,9 @@ const account2 = {
         '2019-12-25T06:04:23.907Z',
         '2020-01-25T14:18:46.235Z',
         '2020-02-05T16:33:06.386Z',
-        '2020-04-10T14:43:26.374Z',
-        '2020-06-25T18:49:59.371Z',
-        '2020-07-26T12:01:20.894Z',
+        '2023-12-25T14:43:26.374Z',
+        '2023-12-29T18:49:59.371Z',
+        '2023-12-30T12:01:20.894Z',
     ],
     currency: 'USD',
     locale: 'en-US',
@@ -76,6 +76,23 @@ const currencies = new Map([
     ['GBP', 'Pound sterling'],
 ]);
 
+const formatMovementsDates = function (date) {
+    const calcDaysPassed = (date1, date2) => Math.round(Math.abs(date1 - date2) / (1000 * 60 * 60 * 24));
+    const daysPassed = calcDaysPassed(new Date(), date);
+    console.log(daysPassed);
+
+    if (daysPassed === 0) return 'Today';
+    else if (daysPassed === 1) return 'Yesterday';
+    else if (daysPassed <= 7) return `${daysPassed} days ago`;
+    else {
+        const day = `${date.getDate()}`.padStart(2, 0);
+        const month = `${date.getMonth() + 1}`.padStart(2, 0);
+        const year = date.getFullYear();
+
+        return `${day}/${month}/${year}`;
+    }
+};
+
 //-> Function to display all movements associated to current account
 const displayMovements = function (account, sort = false) {
     containerMovements.innerHTML = '';
@@ -86,10 +103,8 @@ const displayMovements = function (account, sort = false) {
         const movementType = movement > 0 ? 'deposit' : 'withdrawal';
 
         const date = new Date(account.movementsDates[index]);
-        const day = `${date.getDate()}`.padStart(2, 0);
-        const month = `${date.getMonth() + 1}`.padStart(2, 0);
-        const year = date.getFullYear();
-        const displayDate = `${day}/${month}/${year}`;
+        const displayDate = formatMovementsDates(date);
+        // console.log(displayDate);
 
         const movementsRowHTML = `
         <div class="movements__row">
@@ -110,7 +125,7 @@ const computeUserNames = function (accs) {
         acc.username = acc.owner
             .toLowerCase()
             .split(' ')
-            .map((name) => name[0])
+            .map(name => name[0])
             .join('');
     }
 };
@@ -126,15 +141,15 @@ const displayBalance = function (account) {
 const displaySummary = function (account) {
     const movements = account.movements;
 
-    const incomes = movements.filter((mov) => mov > 0).reduce((accum, mov) => accum + mov, 0);
+    const incomes = movements.filter(mov => mov > 0).reduce((accum, mov) => accum + mov, 0);
 
-    const out = Math.abs(movements.filter((mov) => mov < 0).reduce((accum, mov) => accum + mov, 0));
+    const out = Math.abs(movements.filter(mov => mov < 0).reduce((accum, mov) => accum + mov, 0));
 
     // Compute interest on all deposits and ignore interests below value 1
     const interest = movements
-        .filter((mov) => mov > 0)
-        .map((deposit) => (deposit * account.interestRate) / 100)
-        .filter((interest) => interest >= 1)
+        .filter(mov => mov > 0)
+        .map(deposit => (deposit * account.interestRate) / 100)
+        .filter(interest => interest >= 1)
         .reduce((interest, deposit) => (interest += deposit), 0);
 
     labelSumIn.textContent = `${incomes.toFixed(2)}€`;
@@ -159,7 +174,7 @@ btnLogin.addEventListener('click', function (e) {
     e.preventDefault();
 
     // Find the user with entered username
-    currentAccount = accounts.find((acc) => acc.username === inputLoginUsername.value);
+    currentAccount = accounts.find(acc => acc.username === inputLoginUsername.value);
 
     // Match the entered pin with the correct pin
     if (currentAccount?.pin === Number(inputLoginPin.value)) {
@@ -191,7 +206,7 @@ btnTransfer.addEventListener('click', function (e) {
     e.preventDefault();
 
     const amount = Number(inputTransferAmount.value);
-    const receiverAcc = accounts.find((acc) => acc.username === inputTransferTo.value);
+    const receiverAcc = accounts.find(acc => acc.username === inputTransferTo.value);
 
     if (amount > 0 && receiverAcc && currentAccount.balance >= amount && receiverAcc?.username !== currentAccount.username) {
         currentAccount.movements.push(-1 * amount);
@@ -217,7 +232,7 @@ btnLoan.addEventListener('click', function (e) {
     const amount = Math.floor(inputLoanAmount.value);
 
     // Loan is only approved if there is atleast one deposit of minimum 10% of requested amount
-    if (amount > 0 && currentAccount.movements.some((mov) => mov >= 0.1 * amount)) {
+    if (amount > 0 && currentAccount.movements.some(mov => mov >= 0.1 * amount)) {
         currentAccount.movements.push(amount);
         currentAccount.movementsDates.push(new Date().toISOString());
         updateUI(currentAccount);
@@ -232,7 +247,7 @@ btnClose.addEventListener('click', function (e) {
     e.preventDefault();
 
     if (inputCloseUsername.value === currentAccount.username && Number(inputClosePin.value) == currentAccount.pin) {
-        const index = accounts.findIndex((acc) => acc.username === currentAccount.username);
+        const index = accounts.findIndex(acc => acc.username === currentAccount.username);
 
         containerApp.style.opacity = 0;
         accounts.splice(index, 1);
