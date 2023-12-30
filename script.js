@@ -143,7 +143,7 @@ const formatCurrencies = function (value, locale, currency) {
 
 //-> Function to implement session timer
 const startLoginTimer = function () {
-    let time = 10;
+    let time = 600;
     let min, sec;
 
     const tick = function () {
@@ -153,6 +153,7 @@ const startLoginTimer = function () {
         if (time === 0) {
             clearInterval(timer);
             containerApp.style.opacity = 0;
+            labelWelcome.textContent = 'Log in to get started';
         }
 
         labelTimer.textContent = `${min}:${sec}`;
