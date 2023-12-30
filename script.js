@@ -116,6 +116,7 @@ const currencies = new Map([
     ['GBP', 'Pound sterling'],
 ]);
 
+//-> Function to format the date and time
 const formatMovementsDates = function (date, locale) {
     const calcDaysPassed = (date1, date2) => Math.round(Math.abs(date1 - date2) / (1000 * 60 * 60 * 24));
     const daysPassed = calcDaysPassed(new Date(), date);
@@ -127,10 +128,11 @@ const formatMovementsDates = function (date, locale) {
     return new Intl.DateTimeFormat(locale).format(date);
 };
 
-// Do note that locale and currency are independent of each other
-// Locale controls the representation of the value
-// Currency controls the representation of the currency
+//-> Function to format the currencies
 const formatCurrencies = function (value, locale, currency) {
+    // Do note that locale and currency are independent of each other
+    // Locale controls the representation of the value
+    // Currency controls the representation of the currency
     const options = {
         style: 'currency',
         currency: currency,
@@ -280,9 +282,11 @@ btnLoan.addEventListener('click', function (e) {
 
     // Loan is only approved if there is atleast one deposit of minimum 10% of requested amount
     if (amount > 0 && currentAccount.movements.some(mov => mov >= 0.1 * amount)) {
-        currentAccount.movements.push(amount);
-        currentAccount.movementsDates.push(new Date().toISOString());
-        updateUI(currentAccount);
+        setTimeout(() => {
+            currentAccount.movements.push(amount);
+            currentAccount.movementsDates.push(new Date().toISOString());
+            updateUI(currentAccount);
+        }, 1500);
     }
 
     inputLoanAmount.value = '';
