@@ -82,7 +82,7 @@ const account4 = {
 };
 
 const accounts = [account1, account2, account3, account4];
-let currentAccount;
+let currentAccount, timer;
 
 // Elements
 const labelWelcome = document.querySelector('.welcome');
@@ -139,6 +139,30 @@ const formatCurrencies = function (value, locale, currency) {
     };
 
     return new Intl.NumberFormat(locale, options).format(value);
+};
+
+//-> Function to implement session timer
+const startLoginTimer = function () {
+    let time = 10;
+    let min, sec;
+
+    const tick = function () {
+        min = String(Math.trunc(time / 60)).padStart(2, 0);
+        sec = String(time % 60).padStart(2, 0);
+
+        if (time === 0) {
+            clearInterval(timer);
+            containerApp.style.opacity = 0;
+        }
+
+        labelTimer.textContent = `${min}:${sec}`;
+        time--;
+    };
+
+    tick(); // To execute at 0th second
+    const tickTimer = setInterval(tick, 1000); // Executes 1st second onwards
+
+    return tickTimer;
 };
 
 //-> Function to display all movements associated to current account
@@ -211,10 +235,6 @@ const updateUI = function (currentAccount) {
     displaySummary(currentAccount);
 };
 
-// containerApp.style.opacity = 100;
-// currentAccount = account1;
-// updateUI(currentAccount);
-
 //-> Login Event Handler
 btnLogin.addEventListener('click', function (e) {
     // Prevents the form from submitting and the page from reloading
@@ -247,6 +267,9 @@ btnLogin.addEventListener('click', function (e) {
         labelDate.textContent = new Intl.DateTimeFormat(currentAccount.locale, formattingOptions).format(currDate);
 
         updateUI(currentAccount);
+
+        if (timer) clearInterval(timer); // Clear existing timer
+        timer = startLoginTimer(); // Start new timer and keep track of it
     }
 });
 
@@ -310,6 +333,6 @@ btnClose.addEventListener('click', function (e) {
 let sorted = false;
 //-> Sorting movements Even Handler
 btnSort.addEventListener('click', function () {
-    displayMovements(currentAccount.movements, !sorted); // sort if not sorted and vice versa
+    displayMovements(currentAccount, !sorted); // sort if not sorted and vice versa
     sorted = !sorted; // flip the sorted variable
 });
