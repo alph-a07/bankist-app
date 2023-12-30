@@ -3,9 +3,22 @@
 // Assume that account objects are coming from some API
 const account1 = {
     owner: 'Jonas Schmedtmann',
-    movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
+    movements: [200, 455.23, -306.5, 25000, -642.21, -133.9, 79.97, 1300],
     interestRate: 1.2, // %
     pin: 1111,
+
+    movementsDates: [
+        '2019-11-18T21:31:17.178Z',
+        '2019-12-23T07:42:02.383Z',
+        '2020-01-28T09:15:04.904Z',
+        '2020-04-01T10:17:24.185Z',
+        '2020-05-08T14:11:59.604Z',
+        '2020-05-27T17:01:17.194Z',
+        '2020-07-11T23:36:17.929Z',
+        '2020-07-12T10:51:36.790Z',
+    ],
+    currency: 'EUR',
+    locale: 'pt-PT', // de-DE
 };
 
 const account2 = {
@@ -13,23 +26,22 @@ const account2 = {
     movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
     interestRate: 1.5,
     pin: 2222,
+
+    movementsDates: [
+        '2019-11-01T13:15:33.035Z',
+        '2019-11-30T09:48:16.867Z',
+        '2019-12-25T06:04:23.907Z',
+        '2020-01-25T14:18:46.235Z',
+        '2020-02-05T16:33:06.386Z',
+        '2020-04-10T14:43:26.374Z',
+        '2020-06-25T18:49:59.371Z',
+        '2020-07-26T12:01:20.894Z',
+    ],
+    currency: 'USD',
+    locale: 'en-US',
 };
 
-const account3 = {
-    owner: 'Steven Thomas Williams',
-    movements: [200, -200, 340, -300, -20, 50, 400, -460],
-    interestRate: 0.7,
-    pin: 3333,
-};
-
-const account4 = {
-    owner: 'Sarah Smith',
-    movements: [430, 1000, 700, 50, 90],
-    interestRate: 1,
-    pin: 4444,
-};
-
-const accounts = [account1, account2, account3, account4];
+const accounts = [account1, account2];
 let currentAccount;
 
 // Elements
@@ -65,17 +77,24 @@ const currencies = new Map([
 ]);
 
 //-> Function to display all movements associated to current account
-const displayMovements = function (movements, sort = false) {
+const displayMovements = function (account, sort = false) {
     containerMovements.innerHTML = '';
 
-    const transactions = sort ? movements.slice().sort((a, b) => a - b) : movements;
+    const transactions = sort ? account.movements.slice().sort((a, b) => a - b) : account.movements;
 
     transactions.forEach((movement, index) => {
         const movementType = movement > 0 ? 'deposit' : 'withdrawal';
 
+        const date = new Date(account.movementsDates[index]);
+        const day = `${date.getDate()}`.padStart(2, 0);
+        const month = `${date.getMonth() + 1}`.padStart(2, 0);
+        const year = date.getFullYear();
+        const displayDate = `${day}/${month}/${year}`;
+
         const movementsRowHTML = `
         <div class="movements__row">
             <div class="movements__type movements__type--${movementType}">(${index + 1}) ${movementType}</div>
+            <div class="movements__date">${displayDate}</div>
             <div class="movements__value">${movement.toFixed(2)} €</div>
         </div>`;
 
@@ -125,10 +144,14 @@ const displaySummary = function (account) {
 
 //-> Function to update UI
 const updateUI = function (currentAccount) {
-    displayMovements(currentAccount.movements);
+    displayMovements(currentAccount);
     displayBalance(currentAccount);
     displaySummary(currentAccount);
 };
+
+// containerApp.style.opacity = 100;
+// currentAccount = account1;
+// updateUI(currentAccount);
 
 //-> Login Event Handler
 btnLogin.addEventListener('click', function (e) {
@@ -149,6 +172,16 @@ btnLogin.addEventListener('click', function (e) {
         inputLoginUsername.blur();
         inputLoginPin.blur();
 
+        // Displaying current date
+        const currDate = new Date();
+        const day = `${currDate.getDate()}`.padStart(2, 0);
+        const month = `${currDate.getMonth() + 1}`.padStart(2, 0);
+        const year = currDate.getFullYear();
+        const hour = `${currDate.getHours()}`.padStart(2, 0);
+        const minutes = `${currDate.getMinutes()}`.padStart(2, 0);
+
+        labelDate.textContent = `${day}/${month}/${year}, ${hour}:${minutes}`;
+
         updateUI(currentAccount);
     }
 });
@@ -163,6 +196,11 @@ btnTransfer.addEventListener('click', function (e) {
     if (amount > 0 && receiverAcc && currentAccount.balance >= amount && receiverAcc?.username !== currentAccount.username) {
         currentAccount.movements.push(-1 * amount);
         receiverAcc?.movements.push(amount);
+
+        const date = new Date().toISOString();
+        currentAccount.movementsDates.push(date);
+        receiverAcc?.movementsDates.push(date);
+
         updateUI(currentAccount);
 
         inputTransferAmount.blur();
@@ -181,6 +219,7 @@ btnLoan.addEventListener('click', function (e) {
     // Loan is only approved if there is atleast one deposit of minimum 10% of requested amount
     if (amount > 0 && currentAccount.movements.some((mov) => mov >= 0.1 * amount)) {
         currentAccount.movements.push(amount);
+        currentAccount.movementsDates.push(new Date().toISOString());
         updateUI(currentAccount);
     }
 
